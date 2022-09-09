@@ -32,5 +32,24 @@ public class RolController {
         return rolRepository.findById(id).orElse(null);
     }
 
+    @PutMapping("{id}")
+    public Rol update(@PathVariable String id, @RequestBody Rol infoRol){
+        Rol currentRol = rolRepository.findById(id).orElse(null);
+        if (currentRol != null) {
+            currentRol.setName(infoRol.getName());
+            currentRol.setDescription(infoRol.getDescription());
+            return this.rolRepository.save(currentRol);
+        }else {
+            return null;
+        }
+    }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("{id}")
+    public void delete(@PathVariable String id){
+        Rol currentRol = this.rolRepository.findById(id).orElse(null);
+        if (currentRol != null) {
+            this.rolRepository.delete(currentRol);
+        }
+    }
 }

@@ -8,19 +8,29 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Rol {
     @Id
-    private String _id;
+    private String id;
     private String name;
+    private String description;
 
-    public Rol(String name) {
+    public Rol(String name, String description) {
         this.name = name;
+        this.description = description;
     }
 
-    public String get_id() {
-        return _id;
+    public String getId() {
+        return id;
     }
 
-    public void set_id(String _id) {
-        this._id = _id;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getName() {
