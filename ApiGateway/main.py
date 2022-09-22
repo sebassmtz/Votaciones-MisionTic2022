@@ -31,30 +31,11 @@ headers = {"Content-Type": "application/json; charset=utf-8"}
 
 # ------------------------- Middleware -------------------------------
 
-def clean_url():
-    parts = request.path.split('/')
-    url = request.path
-    for part in parts:
-        if re.search('\\d',part):
-            url = url.replace(part,"?")
-    return url
-
-def validate_permission(route,role_id,method):
-    url = dataConfig["url-backend-security"] + "/rol-permission/validate-permission/rol/" + str(role_id)
-    isPermission = False
-    body = {"url":route, "method": method}
-    response = requests.post(url,json=body,headers=headers)
-    try:
-        data = response.json()
-        if "_id" in data:
-            isPermission = True
-    except:
-        pass
-    return isPermission
 
 @app.before_request
 def before_request_callback():
-    endPoint = cleanURL = clean_url(request.path)
+    endPoint = clean_url(request.path)
+    print(endPoint)
     excludeRoutes = ['/login']
     if excludeRoutes.__contains__(request.path):
         print("ruta excluida",request.path)
@@ -62,11 +43,39 @@ def before_request_callback():
     elif verify_jwt_in_request():
         user = get_jwt_identity()
         if user["rol"] is not None:
-            havePermission = validate_permission(endPoint,request.method,user["rol"]["_id"])
+            havePermission = validate_permission(endPoint,request.method,user["rol"]["id"])
             if not havePermission:
+                print("Entro a este xd")
                 return jsonify({"message": "Permission denied"}),401
         else:
             return jsonify({"message": "Permission denied"}),401
+
+
+def clean_url(url):
+    parts = request.path.split("/")
+    for part in parts:
+        if re.search('\\d',part):
+            url = url.replace(part,"?")
+    return url
+
+def validate_permission(route,method,role_id):
+    url = dataConfig["url-backend-security"] + "/rol-permission/validate-permission/rol/" + str(role_id)
+    print(url)
+    print(route)
+    isPermission = False
+    body = {
+        "url":route,
+        "method": method
+    }
+    print(body)
+    response = requests.get(url,json=body,headers=headers)
+    try:
+        data = response.json()
+        if "id" in data:
+            isPermission = True
+    except:
+        pass
+    return isPermission
 
 
 # ------------------------- Endpoints -------------------------------
