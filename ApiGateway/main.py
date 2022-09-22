@@ -35,7 +35,6 @@ headers = {"Content-Type": "application/json; charset=utf-8"}
 @app.before_request
 def before_request_callback():
     endPoint = clean_url(request.path)
-    print(endPoint)
     excludeRoutes = ['/login']
     if excludeRoutes.__contains__(request.path):
         print("ruta excluida",request.path)
@@ -45,7 +44,7 @@ def before_request_callback():
         if user["rol"] is not None:
             havePermission = validate_permission(endPoint,request.method,user["rol"]["id"])
             if not havePermission:
-                print("Entro a este xd")
+               
                 return jsonify({"message": "Permission denied"}),401
         else:
             return jsonify({"message": "Permission denied"}),401
@@ -61,12 +60,12 @@ def clean_url(url):
 def validate_permission(route,method,role_id):
     url = dataConfig["url-backend-security"] + "/rol-permission/validate-permission/rol/" + str(role_id)
     print(url)
-    print(route)
     isPermission = False
     body = {
         "url":route,
         "method": method
     }
+    print(body)
     response = requests.get(url,json=body,headers=headers)
     try:
         data = response.json()
@@ -140,7 +139,103 @@ def delete_board(id):
     json = response.json()
     return jsonify(json)
 
+###########################################################
+###              ENDPOINTS DE PARTIDOS                  ###
+###########################################################
+#Metodo para listar todos los partidos 
+@app.route("/politicalPartys", methods=['GET'])
+def get_political_partys():
+    url = dataConfig["url-backend-votes"]+'/politicalPartys'
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
 
+#Metodo para mostrar un partido en especifico
+@app.route("/politicalParty/<string:id>", methods=['GET'])
+def get_political_party(id):
+    url = dataConfig["url-backend-votes"]+'/politicalParty/'+id
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+#Metodo para crear un partido
+@app.route("/politicalParty", methods=['POST'])
+def create_political_party():
+    data = request.get_json()
+    url = dataConfig["url-backend-votes"]+'/politicalParty'
+    response = requests.post(url, headers=headers, json=data)
+    json = response.json()
+    return jsonify(json)
+    
+#Metodo para modificar un partido
+@app.route("/politicalParty/<string:id>", methods=['PUT'])
+def update_political_party(id):
+    data = request.get_json()
+    url = dataConfig["url-backend-votes"]+'/politicalParty/'+id
+    response = requests.put(url, headers=headers, json=data)
+    json = response.json()
+    return jsonify(json)
+    
+#Metodo para eliminar un partido
+@app.route("/politicalParty/<string:id>", methods=['DELETE'])
+def delete_political_party(id):
+    url = dataConfig["url-backend-votes"]+'/politicalParty/'+id
+    response = requests.delete(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+###########################################################
+##              ENDPOINTS DE CANDIDATOS                 ###
+###########################################################
+@app.route("/candidates", methods=['GET'])
+def getCandidatos():
+    url = dataConfig["url-backend-votes"]+'/candidates'
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidates", methods=['POST'])
+def crearCandidato():
+    data = request.get_json()
+    url = dataConfig["url-backend-votes"]+'/candidates'
+    response = requests.post(url, headers=headers, json=data)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidates/<string:id>", methods=['GET'])
+def getCandidato(id):
+    url = dataConfig["url-backend-votes"]+'/candidates/'+id
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidates/<string:id>", methods=['PUT'])
+def modificarCandidato(id):
+    data = request.get_json()
+    url = dataConfig["url-backend-votes"]+'/candidates/'+id
+    response = requests.put(url, headers=headers, json=data)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidates/<string:id>", methods=['DELETE'])
+def eliminarCandidato(id):
+    url = dataConfig["url-backend-votes"]+'/candidates/'+id
+    response = requests.delete(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/candidates/<string:id_candidato>/politicalParty/<string:id_partido>", methods=['PUT'])
+def asignarPartidoCandidato(id_candidato, id_partido ):
+    data = request.get_json()
+    url = dataConfig["url-backend-votes"]+'/candidates/'+id_candidato + "/politicalParty/"+id_partido
+    response = requests.put(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+#########################################################
+####          ENDPOINTS DE RESULTADOS                ####
+#########################################################
+    
 # ------------------------- Server -------------------------------
 
 if __name__ == "__main__":
