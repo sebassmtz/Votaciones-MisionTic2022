@@ -188,14 +188,14 @@ def delete_political_party(id):
 ##              ENDPOINTS DE CANDIDATOS                 ###
 ###########################################################
 @app.route("/candidates", methods=['GET'])
-def getCandidatos():
+def get_candidates():
     url = dataConfig["url-backend-votes"]+'/candidates'
     response = requests.get(url, headers=headers)
     json = response.json()
     return jsonify(json)
 
 @app.route("/candidates", methods=['POST'])
-def crearCandidato():
+def create_candidate():
     data = request.get_json()
     url = dataConfig["url-backend-votes"]+'/candidates'
     response = requests.post(url, headers=headers, json=data)
@@ -203,14 +203,14 @@ def crearCandidato():
     return jsonify(json)
 
 @app.route("/candidates/<string:id>", methods=['GET'])
-def getCandidato(id):
+def get_candidate(id):
     url = dataConfig["url-backend-votes"]+'/candidates/'+id
     response = requests.get(url, headers=headers)
     json = response.json()
     return jsonify(json)
 
 @app.route("/candidates/<string:id>", methods=['PUT'])
-def modificarCandidato(id):
+def update_candidate(id):
     data = request.get_json()
     url = dataConfig["url-backend-votes"]+'/candidates/'+id
     response = requests.put(url, headers=headers, json=data)
@@ -218,14 +218,14 @@ def modificarCandidato(id):
     return jsonify(json)
 
 @app.route("/candidates/<string:id>", methods=['DELETE'])
-def eliminarCandidato(id):
+def delete_candidate(id):
     url = dataConfig["url-backend-votes"]+'/candidates/'+id
     response = requests.delete(url, headers=headers)
     json = response.json()
     return jsonify(json)
 
 @app.route("/candidates/<string:id_candidato>/politicalParty/<string:id_partido>", methods=['PUT'])
-def asignarPartidoCandidato(id_candidato, id_partido ):
+def assign_party_to_candidate(id_candidato, id_partido ):
     data = request.get_json()
     url = dataConfig["url-backend-votes"]+'/candidates/'+id_candidato + "/politicalParty/"+id_partido
     response = requests.put(url, headers=headers)
@@ -235,6 +235,57 @@ def asignarPartidoCandidato(id_candidato, id_partido ):
 #########################################################
 ####          ENDPOINTS DE RESULTADOS                ####
 #########################################################
+
+#OBTENER TODOS LOS RESULTADOS  
+@app.route("/results", methods=['GET'])
+def get_results():
+    url = dataConfig["url-backend-votes"]+'/results'
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+
+#OBTENER UN RESULTADO EN ESPECIFICO
+@app.route("/results/<string:id>", methods=['GET'])
+def get_result(id):
+    url = dataConfig["url-backend-votes"]+'/results/'+id
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+
+#agregar un resultado en una mesa
+@app.route("/results/board/<string:id_board>/candidate/<string:id_candidate>", methods=['POST'])
+def create_result(id_board,id_candidate):
+    data = {}
+    url = dataConfig["url-backend-votes"]+'/results/board/'+id_board+"/candidate/"+id_candidate
+    response = requests.post(url, json=data, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+
+#actualizar un resultado
+@app.route("/results/<string:id_result>/board/<string:id_board>/candidate/<string:id_candidate>",methods=['PUT'])
+def update_result(id_result,id_board,id_candidate):
+    url = dataConfig["url-backend-votes"]+'/results/'+id_result + "/board/"+id_board+"/candidate/"+id_candidate
+    response = requests.put(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+
+#Eliminar un resultado
+@app.route("/results/<string:id>", methods=['DELETE'])
+def delete_result(id):
+    url = dataConfig["url-backend-votes"]+'/results/'+id
+    response = requests.delete(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+################################################
+#         ENDPOINT  DE LOS REPORTES            #
+################################################
+
+
     
 # ------------------------- Server -------------------------------
 
