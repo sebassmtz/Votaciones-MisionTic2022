@@ -30,6 +30,21 @@ headers = {"Content-Type": "application/json; charset=utf-8"}
 
 # ------------------------- Middleware -------------------------------
 
+def clean_url():
+    parts = request.path.split('/')
+    url = request.path
+    for part in parts:
+        if re.search('\\d',part):
+            url = url.replace(part,"?")
+    return url
+
+def validate_permission(role_id,route,method):
+    url = dataConfig["url-backend-security"] + "/rol-permission/rol/" + role_id
+    body = {"url":route, "method": method}
+
+@app.before_request
+def before_request_callback():
+    request.path = clean_url()
 
 
 # ------------------------- Endpoints -------------------------------
