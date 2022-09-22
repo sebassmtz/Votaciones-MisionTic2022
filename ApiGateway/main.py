@@ -1,3 +1,4 @@
+from urllib import response
 from flask import Flask
 from flask import jsonify, request
 import requests
@@ -38,13 +39,34 @@ def clean_url():
             url = url.replace(part,"?")
     return url
 
-def validate_permission(role_id,route,method):
-    url = dataConfig["url-backend-security"] + "/rol-permission/rol/" + role_id
+def validate_permission(route,role_id,method):
+    url = dataConfig["url-backend-security"] + "/rol-permission/validate-permission/rol/" + str(role_id)
+    isPermission = False
     body = {"url":route, "method": method}
+    response = requests.post(url,json=body,headers=headers)
+    try:
+        data = response.json()
+        if "_id" in data:
+            isPermission = True
+    except:
+        pass
+    return isPermission
 
 @app.before_request
 def before_request_callback():
-    request.path = clean_url()
+    endPoint = cleanURL = clean_url(request.path)
+    excludeRoutes = ['/login']
+    if excludeRoutes.__contains__(request.path):
+        print("ruta excluida",request.path)
+        pass
+    elif verify_jwt_in_request():
+        user = get_jwt_identity()
+        if user["rol"] is not None:
+            havePermission = validate_permission(endPoint,request.method,user["rol"]["_id"])
+            if not havePermission:
+                return jsonify({"message": "Permission denied"}),401
+        else:
+            return jsonify({"message": "Permission denied"}),401
 
 
 # ------------------------- Endpoints -------------------------------
@@ -70,6 +92,45 @@ def create_token():
         access_token = create_access_token(identity=user,expires_delta=expires)
         return jsonify({"token": access_token, "user_id":user["id"]})
 
+###########################################################
+################# ENDPOINTS DE MESAS ######################
+###########################################################
+@app.route("/boards", methods=['GET'])
+def get_boards():
+    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards'
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/boards", methods=['POST'])
+def create_board():
+    data = request.get_json()
+    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards'
+    response = requests.post(url, headers=headers, json=data)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/boards/<string:id>", methods=['GET'])
+def get_board(id):
+    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards/'+id
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+
+@app.route("/boards/<string:id>", methods=['PUT'])
+def update_board(id):
+    data = request.get_json()
+    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards/'+id
+    response = requests.put(url, headers=headers, json=data)
+    json = response.json()
+    return jsonify(json)
+    
+@app.route("/boards/<string:id>", methods=['DELETE'])
+def delete_board(id):
+    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards/'+id
+    response = requests.delete(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
 
 
 # ------------------------- Server -------------------------------
