@@ -44,9 +44,17 @@ def test():
 def create_token():
     data = request.get_json()
     url = dataConfig["url-backend-security"] + "/users/validate"
-    response = request.post(url, json=data,headers=headers)
+    response = requests.post(url, json=data,headers=headers)
     if response.status_code == 401:
         return jsonify({"msg": "Usuario o contrasena Incorrectos"}), 401
+    elif response.status_code == 500:
+        return jsonify({"msg": "Error inseperado"}), 500
+    elif response.status_code == 200:
+        user = response.json()
+        expires = datetime.timedelta(seconds=60*60*24)
+        access_token = create_access_token(identity=user,expires_delta=expires)
+        return jsonify({"token": access_token, "user_id":user["id"]})
+
 
 
 # ------------------------- Server -------------------------------
