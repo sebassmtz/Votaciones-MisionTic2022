@@ -67,11 +67,10 @@ def validate_permission(route,method,role_id):
         "url":route,
         "method": method
     }
-    print(body)
     response = requests.get(url,json=body,headers=headers)
     try:
         data = response.json()
-        if "id" in data:
+        if "_id" in data:
             isPermission = True
     except:
         pass
@@ -106,7 +105,7 @@ def create_token():
 ###########################################################
 @app.route("/boards", methods=['GET'])
 def get_boards():
-    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards'
+    url = dataConfig["url-backend-votes"]+'/boards'
     response = requests.get(url, headers=headers)
     json = response.json()
     return jsonify(json)
@@ -114,14 +113,14 @@ def get_boards():
 @app.route("/boards", methods=['POST'])
 def create_board():
     data = request.get_json()
-    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards'
+    url = dataConfig["url-backend-votes"]+'/boards'
     response = requests.post(url, headers=headers, json=data)
     json = response.json()
     return jsonify(json)
 
 @app.route("/boards/<string:id>", methods=['GET'])
 def get_board(id):
-    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards/'+id
+    url = dataConfig["url-backend-votes"]+'/boards/'+id
     response = requests.get(url, headers=headers)
     json = response.json()
     return jsonify(json)
@@ -129,14 +128,14 @@ def get_board(id):
 @app.route("/boards/<string:id>", methods=['PUT'])
 def update_board(id):
     data = request.get_json()
-    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards/'+id
+    url = dataConfig["url-backend-votes"]+'/boards/'+id
     response = requests.put(url, headers=headers, json=data)
     json = response.json()
     return jsonify(json)
     
 @app.route("/boards/<string:id>", methods=['DELETE'])
 def delete_board(id):
-    url = dataConfig["url-backend-votes"]+'/zrk5nkf/boards/'+id
+    url = dataConfig["url-backend-votes"]+'/boards/'+id
     response = requests.delete(url, headers=headers)
     json = response.json()
     return jsonify(json)
