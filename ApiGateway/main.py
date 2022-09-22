@@ -11,8 +11,28 @@ from flask_jwt_extended import create_access_token, verify_jwt_in_request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_jwt_extended import JWTManager
 
+# ------------------------- Setting Flask App -------------------------------
+
 app = Flask(__name__)
 cors = CORS(app)
+
+def loadFileConfig():
+    with open('config.json') as f:
+        data = json.load(f)
+    return data
+
+dataConfig = loadFileConfig()
+
+app.config['JWT_SECRET_KEY'] = 'super-secret'
+jwt = JWTManager(app)
+
+headers = {"Content-Type": "application/json; charset=utf-8"}
+
+# ------------------------- Middleware -------------------------------
+
+
+
+# ------------------------- Endpoints -------------------------------
 
 @app.route("/", methods=["GET"])
 def test():
@@ -20,15 +40,20 @@ def test():
     json["message"] = "Server Running..."
     return jsonify(json)
 
-def loadFileConfig():
-    with open('config.json') as f:
-        data = json.load(f)
-    return data
+@app.route("/login",methods=['POST'])
+def create_token():
+    data = request.get_json()
+    url = dataConfig["url-backend-security"] + "/users/validate"
+    response = request.post(url, json=data,headers=headers)
+    if response.status_code == 401:
+        return jsonify({"msg": "Usuario o contrasena Incorrectos"}), 401
+
+
+# ------------------------- Server -------------------------------
 
 if __name__ == "__main__":
-    dataConfig = loadFileConfig()
-    print("Server running: http://"+dataConfig["url-backend"]+
-    ":"+str(dataConfig["port"]))
+    url = "http://"+dataConfig["url-backend"]+":"+str(dataConfig["port"])
+    print("Server running:" + url)
     serve(app, host = dataConfig["url-backend"], 
     port=dataConfig["port"])
 
