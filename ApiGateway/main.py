@@ -285,7 +285,40 @@ def delete_result(id):
 #         ENDPOINT  DE LOS REPORTES            #
 ################################################
 
+#Inscritos total en una mesa
+@app.route("/reports/boards/<string:id_board>",methods=['GET'])
+def sign_up_boards(id_board):
+    url = dataConfig["url-backend-votes"]+'/reports/boards/'+id_board
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
 
+#Obtener las mesas en las que esta inscrito un candidato
+@app.route("/reports/candidate/<string:id_candidate>",methods=['GET'])
+def sign_up_boards_candidate(id_candidate):
+    url = dataConfig["url-backend-votes"]+'/reports/candidate/'+id_candidate
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+
+#Devuelve el numero de cédula mayor
+@app.route("/reports/newIdentification",methods=['GET'])
+def get_new_identification():
+    url = dataConfig["url-backend-votes"]+'/reports/newIdentification'
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
+    
+
+ #Metodo para encontrar la mesa y el partido
+@app.route("/reports/board/<string:id_board>/political/<string:id_party>",methods=['GET'])
+def findBy_board_and_party(id_board, id_party):
+    url = dataConfig["url-backend-votes"]+'/reports/board/' + id_board + '/political/'+ id_party
+    response = requests.get(url, headers=headers)
+    json = response.json()
+    return jsonify(json)
     
 # ------------------------- Server -------------------------------
 
