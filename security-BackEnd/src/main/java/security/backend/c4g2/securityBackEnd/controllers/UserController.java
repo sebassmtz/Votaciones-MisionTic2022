@@ -8,6 +8,8 @@ import security.backend.c4g2.securityBackEnd.models.User;
 import security.backend.c4g2.securityBackEnd.repositories.RolRepository;
 import security.backend.c4g2.securityBackEnd.repositories.UserRepository;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -89,6 +91,17 @@ public class UserController {
             sb.append(String.format("%02x", b));
         }
         return sb.toString();
+    }
+
+    @PostMapping("/validate")
+    public User validate(@RequestBody User infoUser, final HttpServletResponse response) throws IOException {
+        User currentUser = userRepository.getUserByMail(infoUser.getEmail());
+        if (currentUser != null && currentUser.getPassword().equals(convertSHA256(infoUser.getPassword()))){
+            currentUser.setPassword((""));
+            return currentUser;
+        }
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        return null;
     }
 
 }
